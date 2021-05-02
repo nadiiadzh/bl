@@ -8,9 +8,12 @@ const Layout = ({ location, title, children }) => {
 
   if (isRootPath) {
     header = (
+      
       <h1 className="main-heading">
         <Link to="/">{title}</Link>
       </h1>
+      
+      
     )
   } else {
     header = (
@@ -22,7 +25,15 @@ const Layout = ({ location, title, children }) => {
 
   return (
     <div className="global-wrapper" data-is-root-path={isRootPath}>
-      <header className="global-header">{header}</header>
+      <header className="global-header">
+        {header}
+        <nav>
+        <ul className="menu">
+          <li><Link to='/'>Home</Link></li>
+          <li><Link to='/about'>About</Link></li>
+        </ul>
+      </nav>
+      </header>
       <main>{children}</main>
       <footer>
         © {new Date().getFullYear()}, Built with
