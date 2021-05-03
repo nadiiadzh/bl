@@ -1,4 +1,5 @@
 import * as React from "react"
+import {useState} from "react"
 import { Link, graphql } from "gatsby"
 
 import Bio from "../components/bio"
@@ -7,8 +8,27 @@ import Seo from "../components/seo"
 
 const BlogIndex = ({ data, location }) => {
   const siteTitle = data.site.siteMetadata?.title || `Title`
-  const posts = data.allMarkdownRemark.nodes
+  const posts = data.allMarkdownRemark.nodes // all posts
 
+  const [search, setSearch] = useState({
+    query: ``,
+    filteredPosts: posts
+  })
+
+  const handleSearch = (event) => {
+
+    const queryStr = event.target.value
+
+    const postArr= posts.filter(post =>
+       post.frontmatter.title.toUpperCase().includes(queryStr.toUpperCase()) || 
+       post.rawMarkdownBody.toUpperCase().includes(queryStr.toUpperCase()) 
+       )
+
+    setSearch({
+      query: queryStr,
+      filteredPosts: postArr
+    })
+  } 
   if (posts.length === 0) {
     return (
       <Layout location={location} title={siteTitle}>
@@ -27,9 +47,11 @@ const BlogIndex = ({ data, location }) => {
     <Layout location={location} title={siteTitle}>
       <Seo title="All posts" />
       <Bio />
+      <input type="search" placeholder="Search by title" onChange={handleSearch} value={search.query} />
       <ol style={{ listStyle: `none` }}>
-        {posts.map(post => {
-          const title = post.frontmatter.title || post.fields.slug
+        {search.filteredPosts.map(post => {
+
+            const title = post.frontmatter.title || post.fields.slug
 
           return (
             <li key={post.fields.slug}>
@@ -59,6 +81,7 @@ const BlogIndex = ({ data, location }) => {
           )
         })}
       </ol>
+      <footer className="result-num">{search.filteredPosts.length} {(search.filteredPosts.length===1)?`story` : `stories`} to read</footer>
     </Layout>
   )
 }
@@ -75,6 +98,7 @@ export const pageQuery = graphql`
     allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
       nodes {
         excerpt
+        rawMarkdownBody
         fields {
           slug
         }
